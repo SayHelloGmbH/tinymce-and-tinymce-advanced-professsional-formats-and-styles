@@ -194,8 +194,8 @@ function bb_taps_mce_before_init_insert_formats($init_array)
 {
 	// Define the style_formats array
 	$style_formats = get_option('bb_taps_addstyledrop');
-	// Insert the array, JSON ENCODED, into 'style_formats'
-	$init_array['style_formats'] = json_encode($style_formats);
+	// Use WP helper for JSON encoding to avoid json_encode edge-cases
+	$init_array['style_formats'] = wp_json_encode($style_formats);
 
 	return $init_array;
 }
@@ -280,6 +280,14 @@ function bb_taps_backend_page()
 							if (!empty($_POST[$key_index]) && !empty($_POST[$val_index])) {
 								$k = sanitize_text_field(wp_unslash($_POST[$key_index]));
 								$v = sanitize_text_field(wp_unslash($_POST[$val_index]));
+								// normalize CSS property names to JS camelCase (font-size -> fontSize)
+								if (strpos($k, '-') !== false) {
+									$parts = explode('-', $k);
+									$k = array_shift($parts);
+									foreach ($parts as $p) {
+										$k .= ucfirst($p);
+									}
+								}
 								$ready_styles[$k] = $v;
 							}
 						}
