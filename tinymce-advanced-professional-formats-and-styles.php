@@ -165,7 +165,6 @@ function bb_taps_tinymce_css($wp)
 	$wp .= ',' . bb_taps_get_style_url("editor-style.css");
 	$wp .= ',' . bb_taps_get_style_url("editor-style-shared.css");
 
-	die($wp);
 	return $wp;
 }
 
