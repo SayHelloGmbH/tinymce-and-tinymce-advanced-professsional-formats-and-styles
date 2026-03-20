@@ -8,7 +8,7 @@ Author: Say Hello GmbH
 Author URI: https://sayhello.ch/
 Requires at least: 6.9
 Tested up to: 6.9
-Version: 1.2.1
+Version: 1.2.2
 License: GPLv3
 Note: This Plugins is GPLv3 licensed. This Plugin is released without any warranty.
 */
@@ -141,21 +141,6 @@ function bb_taps_cannot_create()
 {
 	bb_taps_admin_message(__("The Plugin does not have the required permissions to create the files edtior-style.css and editor-style-shared.css automatically. Please create these files manually to the specified folder on your server.", TAPS_TEXTDOMAIN));
 }
-
-
-// 3.  Add settings link on plugin page
-function bb_taps_settings_link($links)
-{
-	$settings_link = sprintf(__('%s Settings %s', TAPS_TEXTDOMAIN), '<a href="options-general.php?page=tinymce-and-tinymce-advanced-professsional-formats-and-styles/tinymce-advanced-professional-formats-and-styles.php">', '</a>');
-	$donate_link = sprintf(__('%s Donate %s', TAPS_TEXTDOMAIN), '<a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VNS6BVGVH69P6">', '</a>');
-	array_unshift($links, $donate_link);
-	array_unshift($links, $settings_link);
-	return $links;
-}
-
-$plugin = plugin_basename(__FILE__);
-add_filter("plugin_action_links_$plugin", 'bb_taps_settings_link');
-
 
 /** Add user defined editor styles **/
 
