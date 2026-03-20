@@ -9,9 +9,7 @@ Requires at least: 6.9
 Tested up to: 6.9
 Version: 1.1.2
 License: GPLv3
- *
- * Note: This Plugins is GPLv2 licensed. This Plugin is released without any warranty.
- *
+Note: This Plugins is GPLv3 licensed. This Plugin is released without any warranty.
 */
 
 define('TAPS_TEXTDOMAIN', 'tinymce-and-tinymce-advanced-professional-styles');
@@ -27,9 +25,9 @@ function bb_taps_localization()
 /* 1. Version check */
 global $wp_version;
 
-$exit_msg = sprintf(__('This Plugin requires WordPress version 3.0 or higher. %sPlease update!%s', TAPS_TEXTDOMAIN), '<a href="http://codex.wordpress.org/Upgrading_Wordpress">', '</a>');
+$exit_msg = sprintf(__('This Plugin requires WordPress version 6.9 or higher. %sPlease update!%s', TAPS_TEXTDOMAIN), '<a href="http://codex.wordpress.org/Upgrading_Wordpress">', '</a>');
 
-if (!version_compare($wp_version, "2.9", ">")) {
+if (!version_compare($wp_version, "6.9", ">=")) {
 	exit($exit_msg);
 }
 
@@ -166,6 +164,8 @@ function bb_taps_tinymce_css($wp)
 {
 	$wp .= ',' . bb_taps_get_style_url("editor-style.css");
 	$wp .= ',' . bb_taps_get_style_url("editor-style-shared.css");
+
+	die($wp);
 	return $wp;
 }
 
@@ -217,21 +217,27 @@ function bb_taps_options()
 function bb_taps_backend_page()
 { ?>
 	<div class="wrap">
-		<div><?php screen_icon('options-general'); ?></div>
+		<div><?php if (function_exists('screen_icon')) {
+					screen_icon('options-general');
+				} else {
+					echo '<div class="icon32"></div>';
+				} ?></div>
 		<h2><?php _e('Settings: TinyMCE Advanced Professional Styles', 'custom-header-images'); ?></h2>
 		<?php
-		if (isset($_POST['bb_taps_backend_update']) && $_POST['bb_taps_backend_update'] != "") {
+		if (!empty($_POST['bb_taps_backend_update'])) {
 
 			// check if themes folder changed
-			if ($_POST["bb_taps_locstyle"] != get_option('bb_taps_locstyle')) {
-				bb_taps_createAndSetEditorStyles($_POST["bb_taps_locstyle"], $_POST["bb_taps_cuslink"]);
+			$posted_locstyle = isset($_POST['bb_taps_locstyle']) ? sanitize_text_field(wp_unslash($_POST['bb_taps_locstyle'])) : '';
+			$posted_cuslink = isset($_POST['bb_taps_cuslink']) ? sanitize_text_field(wp_unslash($_POST['bb_taps_cuslink'])) : '';
+
+			if ($posted_locstyle !== get_option('bb_taps_locstyle')) {
+				bb_taps_createAndSetEditorStyles($posted_locstyle, $posted_cuslink);
 			}
 
 			// Update Contents
-			$all = intval($_POST['addstyledrop_number']);
+			$all = isset($_POST['addstyledrop_number']) ? intval($_POST['addstyledrop_number']) : 0;
 
 			$all_options = array();
-			$allowed = false;
 			$errors = array();
 
 			// tag type requires tag
@@ -239,12 +245,12 @@ function bb_taps_backend_page()
 			// Wordpress sometimes tries to escape the HTML when saving something to wp-options
 			for ($i = 1; $i <= $all; $i++) {
 				$allowed = true;
-				$field0 = $_POST["addstyledrop_0_" . $i];
-				$field1 = $_POST["addstyledrop_1_" . $i];
-				$field3 = $_POST["addstyledrop_3_" . $i];
-				$field4 = $_POST["addstyledrop_4_" . $i];
-				$field7 = intval($_POST["addstyledrop_7_" . $i]);
-				$field8 = intval($_POST["addstyledrop_8_" . $i]);
+				$field0 = isset($_POST["addstyledrop_0_" . $i]) ? sanitize_text_field(wp_unslash($_POST["addstyledrop_0_" . $i])) : '';
+				$field1 = isset($_POST["addstyledrop_1_" . $i]) ? sanitize_text_field(wp_unslash($_POST["addstyledrop_1_" . $i])) : '';
+				$field3 = isset($_POST["addstyledrop_3_" . $i]) ? sanitize_text_field(wp_unslash($_POST["addstyledrop_3_" . $i])) : '';
+				$field4 = isset($_POST["addstyledrop_4_" . $i]) ? sanitize_text_field(wp_unslash($_POST["addstyledrop_4_" . $i])) : '';
+				$field7 = isset($_POST["addstyledrop_7_" . $i]) ? intval($_POST["addstyledrop_7_" . $i]) : 0;
+				$field8 = isset($_POST["addstyledrop_8_" . $i]) ? intval($_POST["addstyledrop_8_" . $i]) : 0;
 
 				// if there is no title, the row will be deleted
 				if ($field0 != "") {
@@ -266,37 +272,37 @@ function bb_taps_backend_page()
 						$checked_row["classes"] = $field4;
 
 						// save the custom styles
-						$styles_to_check = intval($_POST["tpcount_5_" . $i]);
+						$styles_to_check = isset($_POST["tpcount_5_" . $i]) ? intval($_POST["tpcount_5_" . $i]) : 0;
 						$ready_styles = array();
 
 						for ($a = 1; $a <= $styles_to_check; $a++) {
-							if ($_POST['addstyledrop_5_' . $i . '_' . $a . '_key'] != "" && $_POST['addstyledrop_5_' . $i . '_' . $a . '_val'] != "") {
-								$ready_styles[$_POST['addstyledrop_5_' . $i . '_' . $a . '_key']] = $_POST['addstyledrop_5_' . $i . '_' . $a . '_val'];
+							$key_index = 'addstyledrop_5_' . $i . '_' . $a . '_key';
+							$val_index = 'addstyledrop_5_' . $i . '_' . $a . '_val';
+							if (!empty($_POST[$key_index]) && !empty($_POST[$val_index])) {
+								$k = sanitize_text_field(wp_unslash($_POST[$key_index]));
+								$v = sanitize_text_field(wp_unslash($_POST[$val_index]));
+								$ready_styles[$k] = $v;
 							}
 						}
 						$checked_row["styles"] = $ready_styles;
 
 						// save the custom attributes
-						$styles_to_check = intval($_POST["tpcount_6_" . $i]);
+						$styles_to_check = isset($_POST["tpcount_6_" . $i]) ? intval($_POST["tpcount_6_" . $i]) : 0;
 						$ready_attribs = array();
 
 						for ($a = 1; $a <= $styles_to_check; $a++) {
-							if ($_POST['addstyledrop_6_' . $i . '_' . $a . '_key'] != "" && $_POST['addstyledrop_6_' . $i . '_' . $a . '_val'] != "") {
-								$ready_attribs[$_POST['addstyledrop_6_' . $i . '_' . $a . '_key']] = $_POST['addstyledrop_6_' . $i . '_' . $a . '_val'];
+							$key_index = 'addstyledrop_6_' . $i . '_' . $a . '_key';
+							$val_index = 'addstyledrop_6_' . $i . '_' . $a . '_val';
+							if (!empty($_POST[$key_index]) && !empty($_POST[$val_index])) {
+								$k = sanitize_text_field(wp_unslash($_POST[$key_index]));
+								$v = sanitize_text_field(wp_unslash($_POST[$val_index]));
+								$ready_attribs[$k] = $v;
 							}
 						}
 						$checked_row["attributes"] = $ready_attribs;
 
-						if ($field7 == 1) {
-							$checked_row["exact"] = true;
-						} else {
-							$checked_row["exact"] = false;
-						}
-						if ($field8 == 1) {
-							$checked_row["wrapper"] = true;
-						} else {
-							$checked_row["wrapper"] = false;
-						}
+						$checked_row["exact"] = ($field7 == 1);
+						$checked_row["wrapper"] = ($field8 == 1);
 
 						array_push($all_options, $checked_row);
 					}
@@ -318,12 +324,8 @@ function bb_taps_backend_page()
 		<?php
 			}
 		}
-		// get the data
-		$data = get_option('chi_data');
 		?>
 		<form method="post" action="">
-			<p><?php printf(__('A good WordPress Plugin means a lot of work. Please consider %s donating %s if you like it. Thank you.', TAPS_TEXTDOMAIN), '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VNS6BVGVH69P6">', '</a>'); ?></p>
-
 			<h3><?php _e('Change the visual style of your TinyMCE', TAPS_TEXTDOMAIN); ?></h3>
 			<p><?php _e('To change the visual style appearance of your TinyMCE visual editor, we have to create two stylesheets: editor-style.css (TinyMCE only) and editor-style-shared.css (both, TinyMCE and your theme).', TAPS_TEXTDOMAIN); ?></p>
 			<p><?php _e('Please choose a location for your files:', TAPS_TEXTDOMAIN); ?></p>
@@ -466,14 +468,14 @@ function bb_taps_backend_page()
 
 					?>
 						<tr valign="top" id="addstyledrop_row_<?php echo $op_ct; ?>">
-							<td><input type="text" name="addstyledrop_0_<?php echo $op_ct; ?>" id="addstyledrop_0_<?php echo $op_ct; ?>" value="<?php echo $item['title']; ?>" /></td>
+							<td><input type="text" name="addstyledrop_0_<?php echo $op_ct; ?>" id="addstyledrop_0_<?php echo $op_ct; ?>" value="<?php echo esc_attr($item['title'] ?? ''); ?>" /></td>
 							<td>
 								<input type="radio" value="inline" name="addstyledrop_1_<?php echo $op_ct; ?>" <?php if ($type == "inline") { ?> checked="checked" <?php } ?> /> Inline&nbsp;&nbsp;
 								<input type="radio" value="block" name="addstyledrop_1_<?php echo $op_ct; ?>" <?php if ($type == "block") { ?> checked="checked" <?php } ?> /> Block&nbsp;&nbsp;
 								<input type="radio" value="selector" name="addstyledrop_1_<?php echo $op_ct; ?>" <?php if ($type == "selector") { ?> checked="checked" <?php } ?> /> Selector&nbsp;&nbsp;
 							</td>
-							<td><input type="text" name="addstyledrop_3_<?php echo $op_ct; ?>" id="addstyledrop_3_<?php echo $op_ct; ?>" value="<?php echo $typeval; ?>" /></td>
-							<td><input type="text" name="addstyledrop_4_<?php echo $op_ct; ?>" id="addstyledrop_4_<?php echo $op_ct; ?>" value="<?php echo $item['classes']; ?>" /></td>
+							<td><input type="text" name="addstyledrop_3_<?php echo $op_ct; ?>" id="addstyledrop_3_<?php echo $op_ct; ?>" value="<?php echo esc_attr($typeval ?? ''); ?>" /></td>
+							<td><input type="text" name="addstyledrop_4_<?php echo $op_ct; ?>" id="addstyledrop_4_<?php echo $op_ct; ?>" value="<?php echo esc_attr($item['classes'] ?? ''); ?>" /></td>
 							<td>
 								<table id="addstyledrop_5_<?php echo $op_ct; ?>">
 									<tr>
@@ -482,15 +484,15 @@ function bb_taps_backend_page()
 										<th>Delete</th>
 									</tr>
 									<?php
-									$tp_items = $item["styles"];
+									$tp_items = is_array($item['styles'] ?? null) ? $item['styles'] : array();
 									$tp_ct = 1;
 									foreach ($tp_items as $key => $tp_item) { ?>
 										<tr id="tprow_5_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>">
 											<td>
-												<input type="text" id="addstyledrop_5_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_key" name="addstyledrop_5_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_key" value="<?php echo $key; ?>" />
+												<input type="text" id="addstyledrop_5_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_key" name="addstyledrop_5_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_key" value="<?php echo esc_attr($key); ?>" />
 											</td>
 											<td>
-												<input type="text" id="addstyledrop_5_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_val" name="addstyledrop_5_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_val" value="<?php echo $tp_item; ?>" />
+												<input type="text" id="addstyledrop_5_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_val" name="addstyledrop_5_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_val" value="<?php echo esc_attr($tp_item); ?>" />
 											</td>
 											<td><a style="cursor:pointer;" onclick="delete_tp_row(5,<?php echo $op_ct; ?>,<?php echo $tp_ct; ?>)">X</a></td>
 										</tr>
@@ -512,15 +514,15 @@ function bb_taps_backend_page()
 										<th>Delete</th>
 									</tr>
 									<?php
-									$tp_items = $item["attributes"];
+									$tp_items = is_array($item['attributes'] ?? null) ? $item['attributes'] : array();
 									$tp_ct = 1;
 									foreach ($tp_items as $key => $tp_item) { ?>
 										<tr id="tprow_6_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>">
 											<td>
-												<input type="text" id="addstyledrop_6_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_key" name="addstyledrop_6_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_key" value="<?php echo $key; ?>" />
+												<input type="text" id="addstyledrop_6_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_key" name="addstyledrop_6_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_key" value="<?php echo esc_attr($key); ?>" />
 											</td>
 											<td>
-												<input type="text" id="addstyledrop_6_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_val" name="addstyledrop_6_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_val" value="<?php echo $tp_item; ?>" />
+												<input type="text" id="addstyledrop_6_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_val" name="addstyledrop_6_<?php echo $op_ct; ?>_<?php echo $tp_ct; ?>_val" value="<?php echo esc_attr($tp_item); ?>" />
 											</td>
 											<td><a style="cursor:pointer;" onclick="delete_tp_row(6,<?php echo $op_ct; ?>,<?php echo $tp_ct; ?>)">X</a></td>
 										</tr>
@@ -534,8 +536,8 @@ function bb_taps_backend_page()
 									<button type="button" class="button-secondary" onclick="add_tp_row(<?php echo $op_ct; ?>,6)"><?php _e('Add new attribute', TAPS_TEXTDOMAIN); ?></button>
 								</div>
 							</td>
-							<td><input type="checkbox" name="addstyledrop_7_<?php echo $op_ct; ?>" id="addstyledrop_7_<?php echo $op_ct; ?>" value="1" <?php if (intval($item['exact']) == 1) { ?>checked="checked" <?php } ?> /></td>
-							<td><input type="checkbox" name="addstyledrop_8_<?php echo $op_ct; ?>" id="addstyledrop_8_<?php echo $op_ct; ?>" value="1" <?php if (intval($item['wrapper']) == 1) { ?>checked="checked" <?php } ?> /></td>
+							<td><input type="checkbox" name="addstyledrop_7_<?php echo $op_ct; ?>" id="addstyledrop_7_<?php echo $op_ct; ?>" value="1" <?php if (intval($item['exact'] ?? 0) == 1) { ?>checked="checked" <?php } ?> /></td>
+							<td><input type="checkbox" name="addstyledrop_8_<?php echo $op_ct; ?>" id="addstyledrop_8_<?php echo $op_ct; ?>" value="1" <?php if (intval($item['wrapper'] ?? 0) == 1) { ?>checked="checked" <?php } ?> /></td>
 							<td><a style="cursor:pointer;" onclick="remove(<?php echo $op_ct; ?>)">X</a></td>
 						</tr>
 					<?php
@@ -634,8 +636,3 @@ function bb_taps_backend_page()
 	</div>
 
 <?php }
-
-
-
-
-?>
