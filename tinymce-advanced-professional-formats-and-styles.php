@@ -2,12 +2,13 @@
 /*
 Plugin Name: TinyMCE and TinyMCE Advanced Professsional Formats and Styles
 Plugin URI: https://github.com/SayHelloGmbH/tinymce-and-tinymce-advanced-professsional-formats-and-styles
+Update URI: https://github.com/SayHelloGmbH/tinymce-and-tinymce-advanced-professsional-formats-and-styles
 Description: Improve, style and completly customize your TinyMCE, TinyMCE Advanced (and some other variants) by using custom editor stylesheets in combination with a dynamically configurable styles dropdown.
 Author: Say Hello GmbH
 Author URI: https://sayhello.ch/
 Requires at least: 6.9
 Tested up to: 6.9
-Version: 1.2.0
+Version: 1.2.1
 License: GPLv3
 Note: This Plugins is GPLv3 licensed. This Plugin is released without any warranty.
 */
