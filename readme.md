@@ -14,7 +14,7 @@ Improve, style and customize TinyMCE / TinyMCE Advanced using custom editor styl
 
 **This plugin was rewritten in March 2026 by [Say Hello GmbH](https://sayhello.ch/), after the public repository version was disabled due to security issues.**
 
-Clients tend to get crazy if they have to edit HTML code on their own or if little things are not working as expected. Make your editing experience as simple and good as possible: 
+Clients tend to get crazy if they have to edit HTML code on their own or if little things are not working as expected. Make your editing experience as simple and good as possible:
 
 Customize TinyMCE / TinyMCE Advanced (or other TinyMCE variants) to fit your needs.
 
@@ -24,7 +24,7 @@ A. This Plugin installs two files editor-style.css and editor-style-shared.css i
 
 - editor-style.css is used for styling your TinyMCE Editor
 - editor-style-shared.css is used for styles to be used in your theme AND in your TinyMCE editor (so you do not have to copy)
-	
+
 Note: To use this feature, you have to write your own CSS code into this files, which is the only professional way to do it.
 
 B. The main feature of this Plugin is to offer a GUI to create custom style formats for TinyMCE dynamically
@@ -32,7 +32,7 @@ B. The main feature of this Plugin is to offer a GUI to create custom style form
 - Easy and very fast to add/change/delete
 - You do not have to change one single line of source code
 
-Current Languages: 
+Current Languages:
 
 - en_US
 - de_DE
@@ -90,6 +90,12 @@ Check if this style is working. If it works, think about other style. They will 
 IMPORTANT: Go to the settings page of the Plugin and set the location of where to find your stylesheets!
 
 ### Changelog
+
+### 1.2.2
+### 1.2.1
+### 1.2.0
+
+- Transfer ownership to Say Hello GmbH. Fix security issues.
 
 #### 1.1.1
 - Added language files Spanish (es) by Andrew Kurtis (http://webhostinghub.com/)
